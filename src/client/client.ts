@@ -3,11 +3,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as CANNON from 'cannon-es'
 import CannonUtils from './utils/cannonUtils'
 import CannonDebugRenderer from './utils/cannonDebugRenderer'
 
-console.log(CannonDebugRenderer)
 const scene = new THREE.Scene()
 scene.add(new THREE.AxesHelper(5))
 
@@ -73,14 +73,15 @@ cubeBody.position.y = cubeMesh.position.y
 cubeBody.position.z = cubeMesh.position.z
 world.addBody(cubeBody)
 
-const sphereGeometry = new THREE.SphereGeometry()
+const sphereGeometry = new THREE.SphereGeometry(0.5)
 const sphereMesh = new THREE.Mesh(sphereGeometry, normalMaterial)
-sphereMesh.position.x = -2
-sphereMesh.position.y = 3
+sphereMesh.position.x = -2.99
+sphereMesh.position.y = 13
+sphereMesh.position.z = 0.5
 sphereMesh.castShadow = true
 scene.add(sphereMesh)
-const sphereShape = new CANNON.Sphere(1)
-const sphereBody = new CANNON.Body({ mass: 1 })
+const sphereShape = new CANNON.Sphere(0.5)
+const sphereBody = new CANNON.Body({ mass: 60 })
 sphereBody.addShape(sphereShape)
 sphereBody.position.x = sphereMesh.position.x
 sphereBody.position.y = sphereMesh.position.y
@@ -177,11 +178,49 @@ world.addBody(curveBody)
 
 
 
+var rampShape = new THREE.Shape();
+
+var rampV1 = new THREE.Vector2(-3, 6);
+var rampV2 = new THREE.Vector2(-3, 0);
+var rampV3 = new THREE.Vector2(3, 0);
+var rampV4 = new THREE.Vector2(3, 1.5);
+
+var startControlPoint = new THREE.Vector2(-1, 0);
+var endControlPoint = new THREE.Vector2(2, 0);
+
+var bezierCurve = new THREE.CubicBezierCurve(rampV1, startControlPoint, endControlPoint, rampV4);
+var bezierCurvePoints = bezierCurve.getPoints(50);
 
 
+rampShape.setFromPoints(bezierCurvePoints);
+rampShape.lineTo(rampV4.x, rampV4.y);
+rampShape.lineTo(rampV3.x, rampV3.y);
+rampShape.lineTo(rampV2.x, rampV2.y);
+rampShape.lineTo(rampV1.x, rampV1.y);
 
 
+const rampExtrudeSettings = { 
+	depth: 1, 
+	bevelEnabled: false, 
+	steps: 2, 
+};
 
+const rampGeometry = new THREE.ExtrudeGeometry( rampShape, rampExtrudeSettings );
+const rampMesh = new THREE.Mesh( rampGeometry, normalMaterial );
+
+
+rampMesh.position.x = 0
+rampMesh.position.y = 4
+
+scene.add(rampMesh);
+
+const rampCannonShape = CannonUtils.CreateTrimesh(rampGeometry)
+const rampCannonBody = new CANNON.Body({ mass: 0 })
+rampCannonBody.addShape(rampCannonShape)
+rampCannonBody.position.x = rampMesh.position.x
+rampCannonBody.position.y = rampMesh.position.y
+rampCannonBody.position.z = rampMesh.position.z
+world.addBody(rampCannonBody)
 
 
 let monkeyMesh: THREE.Object3D
