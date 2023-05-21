@@ -39,7 +39,16 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 )
-camera.position.set(0, 3, 6)
+camera.position.set(0, 10, 9);
+var target = new THREE.Vector3(0, 10, 0);
+camera.lookAt(target);
+declare global {
+    interface Window {
+        testVar: any;
+    }
+}
+  
+window.testVar = camera;
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -59,24 +68,10 @@ world.gravity.set(0, -9.82, 0)
 const normalMaterial = new THREE.MeshNormalMaterial()
 const phongMaterial = new THREE.MeshPhongMaterial()
 
-const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
-const cubeMesh = new THREE.Mesh(cubeGeometry, normalMaterial)
-cubeMesh.position.x = -4
-cubeMesh.position.y = 3
-cubeMesh.castShadow = true
-scene.add(cubeMesh)
-const cubeShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
-const cubeBody = new CANNON.Body({ mass: 1 })
-cubeBody.addShape(cubeShape)
-cubeBody.position.x = cubeMesh.position.x
-cubeBody.position.y = cubeMesh.position.y
-cubeBody.position.z = cubeMesh.position.z
-world.addBody(cubeBody)
-
 const sphereGeometry = new THREE.SphereGeometry(0.5)
 const sphereMesh = new THREE.Mesh(sphereGeometry, normalMaterial)
-sphereMesh.position.x = -2.99
-sphereMesh.position.y = 13
+sphereMesh.position.x = -4.99
+sphereMesh.position.y = 9
 sphereMesh.position.z = 0.5
 sphereMesh.castShadow = true
 scene.add(sphereMesh)
@@ -87,96 +82,6 @@ sphereBody.position.x = sphereMesh.position.x
 sphereBody.position.y = sphereMesh.position.y
 sphereBody.position.z = sphereMesh.position.z
 world.addBody(sphereBody)
-
-const cylinderGeometry = new THREE.CylinderGeometry(1, 1, 2, 8)
-const cylinderMesh = new THREE.Mesh(cylinderGeometry, normalMaterial)
-cylinderMesh.position.x = 0
-cylinderMesh.position.y = 3
-cylinderMesh.castShadow = true
-scene.add(cylinderMesh)
-const cylinderShape = new CANNON.Cylinder(1, 1, 2, 8)
-const cylinderBody = new CANNON.Body({ mass: 1 })
-cylinderBody.addShape(cylinderShape, new CANNON.Vec3())
-cylinderBody.position.x = cylinderMesh.position.x
-cylinderBody.position.y = cylinderMesh.position.y
-cylinderBody.position.z = cylinderMesh.position.z
-world.addBody(cylinderBody)
-
-const icosahedronGeometry = new THREE.IcosahedronGeometry(1, 0)
-const icosahedronMesh = new THREE.Mesh(icosahedronGeometry, normalMaterial)
-icosahedronMesh.position.x = 2
-icosahedronMesh.position.y = 3
-icosahedronMesh.castShadow = true
-scene.add(icosahedronMesh)
-const icosahedronShape = CannonUtils.CreateConvexPolyhedron(
-    icosahedronMesh.geometry
-)
-const icosahedronBody = new CANNON.Body({ mass: 1 })
-icosahedronBody.addShape(icosahedronShape)
-icosahedronBody.position.x = icosahedronMesh.position.x
-icosahedronBody.position.y = icosahedronMesh.position.y
-icosahedronBody.position.z = icosahedronMesh.position.z
-world.addBody(icosahedronBody)
-
-const torusKnotGeometry = new THREE.TorusKnotGeometry()
-const torusKnotMesh = new THREE.Mesh(torusKnotGeometry, normalMaterial)
-torusKnotMesh.position.x = 4
-torusKnotMesh.position.y = 3
-torusKnotMesh.castShadow = true
-scene.add(torusKnotMesh)
-const torusKnotShape = CannonUtils.CreateTrimesh(torusKnotMesh.geometry)
-const torusKnotBody = new CANNON.Body({ mass: 1 })
-torusKnotBody.addShape(torusKnotShape)
-torusKnotBody.position.x = torusKnotMesh.position.x
-torusKnotBody.position.y = torusKnotMesh.position.y
-torusKnotBody.position.z = torusKnotMesh.position.z
-world.addBody(torusKnotBody)
-
-
-
-
-
-
-
-
-var point1 = new THREE.Vector3(-1, 0, 0);
-var point2 = new THREE.Vector3(-1, 1, 0);
-var point3 = new THREE.Vector3(1, 1, 0);
-var point4 = new THREE.Vector3(1, 0, 0);
-var point5 = new THREE.Vector3(0, -1, 0);
-
-var curve1 = new THREE.CubicBezierCurve3(point1, point2, point5, point3);
-var curve2 = new THREE.CubicBezierCurve3(point3, point5, point4, point1);
-
-var curve = new THREE.CurvePath();
-curve.add(curve1);
-curve.add(curve2);
-
-var shape = new THREE.Shape();
-shape.moveTo(point1.x, point1.y);
-shape.bezierCurveTo(point2.x, point2.y, point5.x, point5.y, point3.x, point3.y); // curva até o ponto extra
-shape.bezierCurveTo(point5.x, point5.y, point4.x, point4.y, point1.x, point1.y); // curva do ponto extra até o ponto inicial
-
-var extrudeSettings = {
-  steps: 1,
-  depth: 1,
-  bevelEnabled: false
-};
-var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-var curveMesh = new THREE.Mesh(geometry, normalMaterial);
-
-curveMesh.position.y = 1;
-curveMesh.position.x = -2;
-scene.add(curveMesh);
-const curveShape = CannonUtils.CreateTrimesh(curveMesh.geometry)
-const curveBody = new CANNON.Body({ mass: 1 })
-curveBody.addShape(curveShape)
-curveBody.position.x = curveMesh.position.x
-curveBody.position.y = curveMesh.position.y
-curveBody.position.z = curveMesh.position.z
-world.addBody(curveBody)
-
-
 
 var rampShape = new THREE.Shape();
 
@@ -190,7 +95,6 @@ var endControlPoint = new THREE.Vector2(2, 0);
 
 var bezierCurve = new THREE.CubicBezierCurve(rampV1, startControlPoint, endControlPoint, rampV4);
 var bezierCurvePoints = bezierCurve.getPoints(50);
-
 
 rampShape.setFromPoints(bezierCurvePoints);
 rampShape.lineTo(rampV4.x, rampV4.y);
@@ -207,10 +111,7 @@ const rampExtrudeSettings = {
 
 const rampGeometry = new THREE.ExtrudeGeometry( rampShape, rampExtrudeSettings );
 const rampMesh = new THREE.Mesh( rampGeometry, normalMaterial );
-
-
-rampMesh.position.x = 0
-rampMesh.position.y = 4
+rampMesh.position.x = -2;
 
 scene.add(rampMesh);
 
@@ -223,9 +124,9 @@ rampCannonBody.position.z = rampMesh.position.z
 world.addBody(rampCannonBody)
 
 
-let monkeyMesh: THREE.Object3D
-let monkeyBody: CANNON.Body
-let monkeyLoaded = false
+let rampContainerMesh: THREE.Object3D
+let rampContainerBody: CANNON.Body
+let rampContainerLoaded = false
 
 const loader = new GLTFLoader()
 loader.load(
@@ -239,9 +140,23 @@ loader.load(
                 m.scale.x = 0.03;
                 m.scale.y = 0.03;
                 m.scale.z = 0.03;
-                m.position.x = 5;
-                m.position.y = 4;
+                m.position.x = 4;
+                m.position.y = 0;
                 m.position.z = 0.5;
+                m.material = normalMaterial;
+                rampContainerMesh = m;
+                rampContainerBody = new CANNON.Body({ mass: 0 });
+                const rampContainerCannonShape = CannonUtils.CreateTrimesh(m.geometry);
+                rampContainerCannonShape.scale.x = m.scale.x;
+                rampContainerCannonShape.scale.y = m.scale.y;
+                rampContainerCannonShape.scale.z = m.scale.z;
+                rampContainerBody.addShape(rampContainerCannonShape);
+                rampContainerBody.position.x = m.position.x
+                rampContainerBody.position.y = m.position.y
+                rampContainerBody.position.z = m.position.z
+
+                world.addBody(rampContainerBody);
+                rampContainerLoaded = true;
             }
             if ((child as THREE.Light).isLight) {
                 const l = child as THREE.Light
@@ -291,6 +206,12 @@ physicsFolder.add(world.gravity, 'y', -10.0, 10.0, 0.1)
 physicsFolder.add(world.gravity, 'z', -10.0, 10.0, 0.1)
 physicsFolder.open()
 
+const cameraFolder = gui.addFolder('camera')
+cameraFolder.add(camera.position, 'x', -10.0, 10.0, 0.1)
+cameraFolder.add(camera.position, 'y', -10.0, 10.0, 0.1)
+cameraFolder.add(camera.position, 'z', -10.0, 10.0, 0.1)
+cameraFolder.open()
+
 const clock = new THREE.Clock()
 let delta
 
@@ -306,19 +227,7 @@ function animate() {
 
     cannonDebugRenderer.update()
 
-    // Copy coordinates from Cannon to Three.js
-    cubeMesh.position.set(
-        cubeBody.position.x,
-        cubeBody.position.y,
-        cubeBody.position.z
-    )
-    cubeMesh.quaternion.set(
-        cubeBody.quaternion.x,
-        cubeBody.quaternion.y,
-        cubeBody.quaternion.z,
-        cubeBody.quaternion.w
-    )
-    sphereMesh.position.set(
+        sphereMesh.position.set(
         sphereBody.position.x,
         sphereBody.position.y,
         sphereBody.position.z
@@ -329,63 +238,18 @@ function animate() {
         sphereBody.quaternion.z,
         sphereBody.quaternion.w
     )
-    cylinderMesh.position.set(
-        cylinderBody.position.x,
-        cylinderBody.position.y,
-        cylinderBody.position.z
-    )
-    cylinderMesh.quaternion.set(
-        cylinderBody.quaternion.x,
-        cylinderBody.quaternion.y,
-        cylinderBody.quaternion.z,
-        cylinderBody.quaternion.w
-    )
-    icosahedronMesh.position.set(
-        icosahedronBody.position.x,
-        icosahedronBody.position.y,
-        icosahedronBody.position.z
-    )
-    icosahedronMesh.quaternion.set(
-        icosahedronBody.quaternion.x,
-        icosahedronBody.quaternion.y,
-        icosahedronBody.quaternion.z,
-        icosahedronBody.quaternion.w
-    )
-    torusKnotMesh.position.set(
-        torusKnotBody.position.x,
-        torusKnotBody.position.y,
-        torusKnotBody.position.z
-    )
-    torusKnotMesh.quaternion.set(
-        torusKnotBody.quaternion.x,
-        torusKnotBody.quaternion.y,
-        torusKnotBody.quaternion.z,
-        torusKnotBody.quaternion.w
-    )
-
-    curveMesh.position.set(
-        curveBody.position.x,
-        curveBody.position.y,
-        curveBody.position.z
-    )
-    curveMesh.quaternion.set(
-        curveBody.quaternion.x,
-        curveBody.quaternion.y,
-        curveBody.quaternion.z,
-        curveBody.quaternion.w
-    )
-
-    if (monkeyLoaded) {
-        monkeyMesh.position.set(
-            monkeyBody.position.x,
-            monkeyBody.position.y,
-            monkeyBody.position.z
+    
+    if (rampContainerLoaded) {
+        rampContainerMesh.position.set(
+            rampContainerBody.position.x,
+            rampContainerBody.position.y,
+            rampContainerBody.position.z
         )
-        monkeyMesh.quaternion.set(
-            monkeyBody.quaternion.x,
-            monkeyBody.quaternion.y,
-            monkeyBody.quaternion.z,
-            monkeyBody.quaternion.w
+        rampContainerMesh.quaternion.set(
+            rampContainerBody.quaternion.x,
+            rampContainerBody.quaternion.y,
+            rampContainerBody.quaternion.z,
+            rampContainerBody.quaternion.w
         )
     }
 
