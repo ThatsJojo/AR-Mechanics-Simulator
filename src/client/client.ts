@@ -226,40 +226,38 @@ world.addBody(rampCannonBody)
 let monkeyMesh: THREE.Object3D
 let monkeyBody: CANNON.Body
 let monkeyLoaded = false
-const objLoader = new OBJLoader()
-objLoader.load(
-    'models/monkey.obj',
-    (object) => {
-        scene.add(object)
-        monkeyMesh = object.children[0]
-        ;(monkeyMesh as THREE.Mesh).material = normalMaterial
-        monkeyMesh.position.x = -2
-        monkeyMesh.position.y = 20
-        // const monkeyShape = CannonUtils.CreateTrimesh(
-        //     (monkeyMesh as THREE.Mesh).geometry
-        // )
-        // const monkeyShape = CannonUtils.CreateConvexPolyhedron(
-        //     (monkeyMesh as THREE.Mesh).geometry
-        // )
-        monkeyBody = new CANNON.Body({ mass: 1 })
-        // monkeyBody.addShape(monkeyShape)
-        // monkeyBody.addShape(cubeShape)
-        // monkeyBody.addShape(sphereShape)
-        // monkeyBody.addShape(cylinderShape)
-        monkeyBody.addShape(icosahedronShape)
-        // monkeyBody.addShape(new CANNON.Plane())
-        // monkeyBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2)
-        monkeyBody.position.x = monkeyMesh.position.x
-        monkeyBody.position.y = monkeyMesh.position.y
-        monkeyBody.position.z = monkeyMesh.position.z
-        world.addBody(monkeyBody)
-        monkeyLoaded = true
+
+const loader = new GLTFLoader()
+loader.load(
+    'models/subd-vase-001.glb',
+    function (gltf) {
+        gltf.scene.traverse(function (child) {
+            if ((child as THREE.Mesh).isMesh) {
+                const m = child as THREE.Mesh
+                m.receiveShadow = true
+                m.castShadow = true
+                m.scale.x = 0.03;
+                m.scale.y = 0.03;
+                m.scale.z = 0.03;
+                m.position.x = 5;
+                m.position.y = 4;
+                m.position.z = 0.5;
+            }
+            if ((child as THREE.Light).isLight) {
+                const l = child as THREE.Light
+                l.castShadow = true
+                l.shadow.bias = -0.003
+                l.shadow.mapSize.width = 2048
+                l.shadow.mapSize.height = 2048
+            }
+        })
+        scene.add(gltf.scene)
     },
     (xhr) => {
         console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
     },
     (error) => {
-        console.log('An error happened')
+        console.log(error)
     }
 )
 
