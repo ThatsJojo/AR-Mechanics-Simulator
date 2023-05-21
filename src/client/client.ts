@@ -130,16 +130,16 @@ let rampContainerLoaded = false
 
 const loader = new GLTFLoader()
 loader.load(
-    'models/subd-vase-001.glb',
+    'models/votive-holder.glb',
     function (gltf) {
         gltf.scene.traverse(function (child) {
             if ((child as THREE.Mesh).isMesh) {
                 const m = child as THREE.Mesh
                 m.receiveShadow = true
                 m.castShadow = true
-                m.scale.x = 0.03;
-                m.scale.y = 0.03;
-                m.scale.z = 0.03;
+                m.scale.x = 0.2;
+                m.scale.y = 0.2;
+                m.scale.z = 0.2;
                 m.position.x = 4;
                 m.position.y = 0;
                 m.position.z = 0.5;
