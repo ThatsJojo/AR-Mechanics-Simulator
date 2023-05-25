@@ -144,14 +144,11 @@ declare global {
         testVar: any;
     }
 }
-  
-window.testVar = camera;
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.shadowMap.enabled = true
 renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-renderer.setSize(640, 480);
 renderer.domElement.style.position = 'absolute'
 renderer.domElement.style.top = '0px'
 renderer.domElement.style.left = '0px'
@@ -234,12 +231,12 @@ sphereMesh.position.z = 0.5
 sphereMesh.castShadow = true
 scene.add(sphereMesh)
 const sphereShape = new CANNON.Sphere(0.5)
-const sphereBody = new CANNON.Body({ mass: 60, material: defaultMaterial, linearDamping: 0.1, angularDamping: 0.101 })
-sphereBody.addShape(sphereShape)
-sphereBody.position.x = sphereMesh.position.x
-sphereBody.position.y = sphereMesh.position.y
-sphereBody.position.z = sphereMesh.position.z
-world.addBody(sphereBody)
+const sphereCannonBody = new CANNON.Body({ mass: 60, material: defaultMaterial, linearDamping: 0.1, angularDamping: 0.101 })
+sphereCannonBody.addShape(sphereShape)
+sphereCannonBody.position.x = sphereMesh.position.x
+sphereCannonBody.position.y = sphereMesh.position.y
+sphereCannonBody.position.z = sphereMesh.position.z
+world.addBody(sphereCannonBody)
 
 var rampShape = new THREE.Shape();
 
@@ -286,6 +283,8 @@ let rampContainerMesh: THREE.Object3D
 let rampContainerBody: CANNON.Body
 let rampContainerLoaded = false
 
+const raycaster = new THREE.Raycaster()
+
 const loader = new GLTFLoader()
 loader.load(
     'models/votive-holder.glb',
@@ -315,6 +314,17 @@ loader.load(
 
                 world.addBody(rampContainerBody);
                 rampContainerLoaded = true;
+
+                raycaster.set(
+                  rampContainerMesh.position,
+                  new THREE.Vector3(0, 1, 0)
+                )
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([rampContainerMesh.position, raycaster.ray.direction.multiplyScalar(100)]);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+
+                // Adicionando a linha à cena
+                scene.add(line);
             }
             if ((child as THREE.Light).isLight) {
                 const l = child as THREE.Light
@@ -328,6 +338,7 @@ loader.load(
     },
     (xhr) => {
         console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+        
     },
     (error) => {
         console.log(error)
@@ -395,15 +406,15 @@ function animate(nowMsec: number) {
     }
 
         sphereMesh.position.set(
-        sphereBody.position.x,
-        sphereBody.position.y,
-        sphereBody.position.z
+        sphereCannonBody.position.x,
+        sphereCannonBody.position.y,
+        sphereCannonBody.position.z
     )
     sphereMesh.quaternion.set(
-        sphereBody.quaternion.x,
-        sphereBody.quaternion.y,
-        sphereBody.quaternion.z,
-        sphereBody.quaternion.w
+        sphereCannonBody.quaternion.x,
+        sphereCannonBody.quaternion.y,
+        sphereCannonBody.quaternion.z,
+        sphereCannonBody.quaternion.w
     )
     
     if (rampContainerLoaded) {
@@ -433,6 +444,14 @@ function animate(nowMsec: number) {
     stats.update()
 }
 
+var exibindoMensagem = false;
 function render() {
+
+    const intersects = raycaster.intersectObjects( [sphereMesh] );
+    if(intersects.length && !exibindoMensagem && !Math.round(sphereCannonBody.velocity.y * 10000)) {
+      exibindoMensagem = true;
+      alert('Conseguiu!!!')
+    } 
+
     renderer.render(scene, camera)
 }
