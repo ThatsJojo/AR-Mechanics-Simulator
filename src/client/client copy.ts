@@ -8,7 +8,6 @@ import * as CANNON from 'cannon-es'
 import CannonUtils from './utils/cannonUtils'
 import CannonDebugRenderer from './utils/cannonDebugRenderer'
 import { THREEx, ARjs } from "@ar-js-org/ar.js-threejs"
-import { Ramp } from './entities/Ramp'
 
 THREEx.ArToolkitContext.baseURL = "./";
 
@@ -19,8 +18,8 @@ var arToolkitContext: any, arMarkerControls;
 var arToolkitSource = new THREEx.ArToolkitSource({
   sourceType: 'webcam',
 
-  sourceWidth: window.innerWidth > window.innerHeight ? 640 : 480,
-  sourceHeight: window.innerWidth > window.innerHeight ? 480 : 640,
+  sourceWidth: window.innerWidth > window.innerHeight ? 1920 : 1080,
+  sourceHeight: window.innerWidth > window.innerHeight ? 1080 : 1920,
 })
 
 arToolkitSource.init(function onReady() {
@@ -59,13 +58,28 @@ function initARContext() { // create atToolkitContext
   })
 
   // MARKER
-  arMarkerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+  let markerRoot1 = new THREE.Group();
+  arMarkerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
       type: 'pattern',
       patternUrl: THREEx.ArToolkitContext.baseURL + './data/hiro.patt',
-      // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-      // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-      changeMatrixMode: 'cameraTransformMatrix',
   })
+
+  markerRoot1.add(rampContainerScene)
+  scene.add(markerRoot1);
+
+  let markerRoot = new THREE.Group();
+  scene.add(markerRoot);
+  let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+    type : 'pattern', patternUrl : "data/letterF.patt",
+  });
+
+  let mesh = new THREE.Mesh( 
+    new THREE.BoxGeometry(), 
+    tenisballMaterial
+  );
+  mesh.position.y = 0.75;
+  markerRoot.add(rampMesh);
+  markerRoot.add(sphereMesh);
 
   window.testVar = arMarkerControls;
 
@@ -116,13 +130,10 @@ const scene = new THREE.Scene()
 scene.add(new THREE.AxesHelper(5))
 const camera = new THREE.PerspectiveCamera(
   75,
-  window.innerWidth / window.innerHeight,
+  1920 / 1080,
   0.1,
   1000
 )
-camera.position.set(0, 10, 9);
-var target = new THREE.Vector3(0, 10, 0);
-camera.lookAt(target);
 
 const light1 = new THREE.AmbientLight()
 light1.position.set(2.5, 5, 5)
@@ -149,7 +160,7 @@ declare global {
 }
 
 const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.setSize(1920, 1080)
 renderer.shadowMap.enabled = true
 renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 renderer.domElement.style.position = 'absolute'
@@ -159,12 +170,8 @@ document.body.appendChild(renderer.domElement);
 
 document.body.appendChild(renderer.domElement)
 
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-controls.target.y = 0.5
-
 const world = new CANNON.World()
-const wireframeEnabled = true;
+const wireframeEnabled = false;
 world.broadphase = new CANNON.SAPBroadphase(world)
 world.gravity.set(0, -9.82, 0)
 // world.broadphase = new CANNON.NaiveBroadphase()
@@ -226,6 +233,44 @@ const marmorMaterial =  new THREE.MeshStandardMaterial({
   envMapIntensity: 0.5
 })
 
+var rampShape = new THREE.Shape();
+
+var rampV1 = new THREE.Vector2(-3, 6);
+var rampV2 = new THREE.Vector2(-3, 0);
+var rampV3 = new THREE.Vector2(3, 0);
+var rampV4 = new THREE.Vector2(3, 1.5);
+
+var startControlPoint = new THREE.Vector2(-1, 0);
+var endControlPoint = new THREE.Vector2(2, 0);
+
+var bezierCurve = new THREE.CubicBezierCurve(rampV1, startControlPoint, endControlPoint, rampV4);
+var bezierCurvePoints = bezierCurve.getPoints(50);
+
+rampShape.setFromPoints(bezierCurvePoints);
+rampShape.lineTo(rampV4.x, rampV4.y);
+rampShape.lineTo(rampV3.x, rampV3.y);
+rampShape.lineTo(rampV2.x, rampV2.y);
+rampShape.lineTo(rampV1.x, rampV1.y);
+
+
+const rampExtrudeSettings = { 
+	depth: 1, 
+	bevelEnabled: false, 
+	steps: 2, 
+};
+
+const rampGeometry = new THREE.ExtrudeGeometry( rampShape, rampExtrudeSettings );
+const rampMesh = new THREE.Mesh( rampGeometry, woodMaterial );
+rampMesh.position.x = -2;
+
+const rampCannonShape = CannonUtils.CreateTrimesh(rampGeometry)
+const rampCannonBody = new CANNON.Body({ mass: 0, material: defaultMaterial })
+rampCannonBody.addShape(rampCannonShape)
+rampCannonBody.position.x = rampMesh.position.x
+rampCannonBody.position.y = rampMesh.position.y
+rampCannonBody.position.z = rampMesh.position.z
+world.addBody(rampCannonBody)
+
 const sphereGeometry = new THREE.SphereGeometry(0.5)
 const sphereMesh = new THREE.Mesh(sphereGeometry, tenisballMaterial)
 sphereMesh.position.x = -4.99
@@ -241,41 +286,12 @@ sphereCannonBody.position.y = sphereMesh.position.y
 sphereCannonBody.position.z = sphereMesh.position.z
 world.addBody(sphereCannonBody)
 
-////////////////////////////////////////////////////////////
-// Creating the ramp
-////////////////////////////////////////////////////////////
 
-var rampV1 = new THREE.Vector2(-3, 6);
-var rampV2 = new THREE.Vector2(-3, 0);
-var rampV3 = new THREE.Vector2(3, 0);
-var rampV4 = new THREE.Vector2(3, 1.5);
-var startControlPoint = new THREE.Vector2(-1, 0);
-var endControlPoint = new THREE.Vector2(2, 0);
-
-var ramp = new Ramp(
-    0, 
-    rampV1, 
-    rampV2, 
-    rampV3, 
-    rampV4, 
-    startControlPoint, 
-    endControlPoint, 
-    woodMaterial, 
-    defaultMaterial
-  );
-
-ramp.setPosition(-2, 0, -1);
-scene.add(ramp.mesh);
-world.addBody(ramp.cannonBody)
-
-
-////////////////////////////////////////////////////////////
-// Creating the target
-////////////////////////////////////////////////////////////
 
 let rampContainerMesh: THREE.Object3D
 let rampContainerBody: CANNON.Body
 let rampContainerLoaded = false
+let rampContainerScene: THREE.Object3D
 
 const raycaster = new THREE.Raycaster()
 
@@ -328,6 +344,7 @@ loader.load(
                 l.shadow.mapSize.height = 2048
             }
         })
+        rampContainerScene = gltf.scene
         scene.add(gltf.scene)
     },
     (xhr) => {
@@ -358,10 +375,6 @@ function onWindowResize() {
     if (window.arToolkitContext.arController !== null) {
         arToolkitSource.copyElementSizeTo(window.arToolkitContext.arController.canvas)
     }
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    render()
 }
 
 const stats = new Stats()
@@ -390,7 +403,6 @@ requestAnimationFrame(animate);
 function animate(nowMsec: number) {
     // keep looping
     requestAnimationFrame(animate);
-    controls.update()
 
     delta = Math.min(clock.getDelta(), 0.1)
     world.step(delta)
@@ -412,16 +424,16 @@ function animate(nowMsec: number) {
     )
     
     if (rampContainerLoaded) {
-        rampContainerMesh.position.set(
-            rampContainerBody.position.x,
-            rampContainerBody.position.y,
-            rampContainerBody.position.z
+        rampContainerBody.position.set(
+            rampContainerMesh.position.x,
+            rampContainerMesh.position.y,
+            rampContainerMesh.position.z
         )
-        rampContainerMesh.quaternion.set(
-            rampContainerBody.quaternion.x,
-            rampContainerBody.quaternion.y,
-            rampContainerBody.quaternion.z,
-            rampContainerBody.quaternion.w
+        rampContainerBody.quaternion.set(
+            rampContainerMesh.quaternion.x,
+            rampContainerMesh.quaternion.y,
+            rampContainerMesh.quaternion.z,
+            rampContainerMesh.quaternion.w
         )
     }
     
