@@ -66,6 +66,8 @@ function initARContext() { // create atToolkitContext
       changeMatrixMode: 'cameraTransformMatrix',
   })
 
+  window.testVar = arMarkerControls;
+
   scene.visible = false
 
   console.log('ArMarkerControls', arMarkerControls);
