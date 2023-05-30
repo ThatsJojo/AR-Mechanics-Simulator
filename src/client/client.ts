@@ -1,8 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as CANNON from 'cannon-es'
 import CannonUtils from './utils/cannonUtils'
@@ -239,10 +237,10 @@ var projectile = new Projectile(
     defaultMaterial,
     0.1,
     0.101,
-    true
+    true,
+    new THREE.Vector3(-4.99, 8, 0),
+    CANNON.Body.SLEEPING
   );
-
-projectile.setPosition(-4.99, 9, 0);
 
 scene.add(projectile.mesh)
 world.addBody(projectile.cannonBody)
@@ -256,6 +254,22 @@ const angleDIV = document.getElementById('launchAngle') as HTMLElement;
 function launchAngleUpdatedHandler (e: any ) {
   angleDIV.innerHTML = e.newAngle.toFixed(2) + 'º';
 }
+
+////////////////////////////////////////////////////////////
+// Creating handler for Projectile Launch Button
+////////////////////////////////////////////////////////////
+
+const launchButton = document.getElementById('launchButton') as HTMLElement;
+launchButton.addEventListener('click', function() {
+  if(projectile.isSleeping()) {
+    projectile.awake();
+    launchButton.innerHTML = 'Reiniciar Projetil';
+  } else {
+    projectile.sleep();
+    projectile.resetPosition();
+    launchButton.innerHTML = 'Lançar o Projetil';
+  }
+})
 
 ////////////////////////////////////////////////////////////
 // Creating the Ramp
@@ -379,8 +393,6 @@ function onWindowResize() {
     render()
 }
 
-const stats = new Stats()
-document.body.appendChild(stats.dom)
 
 const gui = new GUI()
 const physicsFolder = gui.addFolder('Physics')
@@ -398,7 +410,10 @@ cameraFolder.open()
 const clock = new THREE.Clock()
 let delta
 
-const cannonDebugRenderer = new CannonDebugRenderer(scene, world)
+const cannonDebugRenderer = new CannonDebugRenderer(scene, world);
+
+onRenderFcts.push(updateProjectileLabels);
+let accelerationTimeDelta = 0;
 
 var lastTimeMsec: number;
 requestAnimationFrame(animate);
@@ -414,43 +429,38 @@ function animate(nowMsec: number) {
       cannonDebugRenderer.update()
     }
 
-        projectile.mesh.position.set(
-        projectile.cannonBody.position.x,
-        projectile.cannonBody.position.y,
-        projectile.cannonBody.position.z
-    )
-    projectile.mesh.quaternion.set(
-        projectile.cannonBody.quaternion.x,
-        projectile.cannonBody.quaternion.y,
-        projectile.cannonBody.quaternion.z,
-        projectile.cannonBody.quaternion.w
-    )
+    projectile.updateMeshFromBody();
     
     if (rampContainerLoaded) {
-        rampContainerMesh.position.set(
-            rampContainerBody.position.x,
-            rampContainerBody.position.y,
-            rampContainerBody.position.z
-        )
-        rampContainerMesh.quaternion.set(
-            rampContainerBody.quaternion.x,
-            rampContainerBody.quaternion.y,
-            rampContainerBody.quaternion.z,
-            rampContainerBody.quaternion.w
-        )
+      rampContainerMesh.position.set(
+          rampContainerBody.position.x,
+          rampContainerBody.position.y,
+          rampContainerBody.position.z
+      )
+      rampContainerMesh.quaternion.set(
+          rampContainerBody.quaternion.x,
+          rampContainerBody.quaternion.y,
+          rampContainerBody.quaternion.z,
+          rampContainerBody.quaternion.w
+      )
     }
     
-    lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60
-    var deltaMsec = Math.min(200, nowMsec - lastTimeMsec)
-    lastTimeMsec = nowMsec
+    lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60;
+    var deltaMsec = Math.min(200, nowMsec - lastTimeMsec);
+    lastTimeMsec = nowMsec;
+
+    accelerationTimeDelta += deltaMsec;
+
+    if(accelerationTimeDelta > 50) {
+      projectile.updateAcceleration(accelerationTimeDelta);
+      accelerationTimeDelta = 0;
+    }
 
     onRenderFcts.forEach(function (onRenderFct) {
       onRenderFct(deltaMsec / 1000, nowMsec / 1000)
     })
 
     render()
-
-    stats.update()
 }
 
 var exibindoMensagem = false;
@@ -463,4 +473,23 @@ function render() {
     } 
 
     renderer.render(scene, camera)
+}
+
+const velocityX = document.getElementById('velocity-x') as HTMLElement;
+const velocityY = document.getElementById('velocity-y') as HTMLElement;
+const velocityZ = document.getElementById('velocity-z') as HTMLElement;
+const accelerationX = document.getElementById('acceleration-x') as HTMLElement;
+const accelerationY = document.getElementById('acceleration-y') as HTMLElement;
+const accelerationZ = document.getElementById('acceleration-z') as HTMLElement;
+
+function updateProjectileLabels() {
+  let velocity = projectile.velocity;
+  let acceleration = projectile.acceleration;
+
+  velocityX.innerHTML = velocity.x.toFixed(2);
+  velocityY.innerHTML = velocity.y.toFixed(2);
+  velocityZ.innerHTML = velocity.z.toFixed(2);
+  accelerationX.innerHTML = acceleration.x.toFixed(2);
+  accelerationY.innerHTML = acceleration.y.toFixed(2);
+  accelerationZ.innerHTML = acceleration.z.toFixed(2);
 }

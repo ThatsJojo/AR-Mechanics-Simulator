@@ -11,10 +11,16 @@
             overflow: hidden;
             margin: 0px;
         }
+        
+        .htmlContent {
+            position: absolute;
+            z-index: 999999;
+            width:  100%;
+        }
 
         .launchAngleContainer {
             position: absolute;
-            top: 90px;
+            top: 30px;
             left: 10px;
             font-family: Arial, sans-serif;
             font-size: 16px;
@@ -40,14 +46,95 @@
             font-weight: bold;
         }
 
+        #launchButton {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translate(-50%);
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .list-container {
+            position: absolute;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            width: 150px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            top: 100px;
+            border: solid rgba(0, 0, 0, 0.171) 1px;
+        }
+
+        .list-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .list-container li {
+            margin-bottom: 10px;
+        }
+
+        .list-container span.label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+            white-space: nowrap;
+        }
+
+        .list-container span.value {
+            display: inline-block;
+            width: 60px;
+            text-align: right;
+        }
+
     </style>
 </head>
 
 <body>
     <script type="module" src="bundle.js"></script>
-    <div class="launchAngleContainer">
-        <span>Ângulo de Lançamento: </span>
-        <span id="launchAngle"></span>
+    <div class="htmlContent">
+        <div class="launchAngleContainer">
+            <span>Ângulo de Lançamento: </span>
+            <span id="launchAngle"></span>
+        </div>
+        <button id="launchButton">Lançar o Projetil</button>
+
+        <div class="list-container">
+            <ul>
+              <li>
+                <span class="label">Velocidade X:</span>
+                <span class="value" id="velocity-x">0.00</span>
+              </li>
+              <li>
+                <span class="label">Velocidade Y:</span>
+                <span class="value" id="velocity-y">0.00</span>
+              </li>
+              <li>
+                <span class="label">Velocidade Z:</span>
+                <span class="value" id="velocity-z">0.00</span>
+              </li>
+              <li>
+                <span class="label">Aceleração X:</span>
+                <span class="value" id="acceleration-x">0.00</span>
+              </li>
+              <li>
+                <span class="label">Aceleração Y:</span>
+                <span class="value" id="acceleration-y">0.00</span>
+              </li>
+              <li>
+                <span class="label">Aceleração Z:</span>
+                <span class="value" id="acceleration-z">0.00</span>
+              </li>
+            </ul>
+          </div>
     </div>
 </body>
 </html>
