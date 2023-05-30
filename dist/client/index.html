@@ -47,10 +47,18 @@
         }
 
         #launchButton {
+            left: 30%;
+            transform: translate(-50%);
+        }
+
+        #pauseButton {
+            left: 60%;
+            transform: translate(-50%);
+        }
+
+        #launchButton, #pauseButton {
             position: absolute;
             top: 30px;
-            left: 50%;
-            transform: translate(-50%);
             padding: 10px 20px;
             background-color: #4CAF50;
             color: #fff;
@@ -106,6 +114,7 @@
             <span id="launchAngle"></span>
         </div>
         <button id="launchButton">Lançar o Projetil</button>
+        <button id="pauseButton">Continuar</button>
 
         <div class="list-container">
             <ul>

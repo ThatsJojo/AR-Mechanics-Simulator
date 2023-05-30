@@ -235,11 +235,11 @@ var projectile = new Projectile(
     0.5,
     tenisballMaterial,
     defaultMaterial,
-    0.1,
-    0.101,
+    0.25,
+    0.05,
     true,
     new THREE.Vector3(-4.99, 8, 0),
-    CANNON.Body.SLEEPING
+    CANNON.Body.AWAKE
   );
 
 scene.add(projectile.mesh)
@@ -258,16 +258,31 @@ function launchAngleUpdatedHandler (e: any ) {
 ////////////////////////////////////////////////////////////
 // Creating handler for Projectile Launch Button
 ////////////////////////////////////////////////////////////
+var enablePhysics = false;
 
 const launchButton = document.getElementById('launchButton') as HTMLElement;
 launchButton.addEventListener('click', function() {
-  if(projectile.isSleeping()) {
-    projectile.awake();
+  if(!enablePhysics) {
+    enablePhysics = true;
     launchButton.innerHTML = 'Reiniciar Projetil';
+    pauseButton.innerHTML = 'Pausar';
   } else {
-    projectile.sleep();
+    enablePhysics = false;
     projectile.resetPosition();
     launchButton.innerHTML = 'Lançar o Projetil';
+    pauseButton.innerHTML = 'Continuar';
+  }
+})
+
+const pauseButton = document.getElementById('pauseButton') as HTMLElement;
+pauseButton.addEventListener('click', function() {
+  if(!enablePhysics) {
+    enablePhysics = true;
+    pauseButton.innerHTML = 'Pausar';
+  } else {
+    enablePhysics = false;
+    pauseButton.innerHTML = 'Continuar';
+    launchButton.innerHTML = 'Reiniciar Projetil';
   }
 })
 
@@ -318,9 +333,9 @@ loader.load(
                 const m = child as THREE.Mesh
                 m.receiveShadow = true
                 m.castShadow = true
-                m.scale.x = 0.2;
-                m.scale.y = 0.2;
-                m.scale.z = 0.2;
+                m.scale.x = 0.3;
+                m.scale.y = 0.18;
+                m.scale.z = 0.3;
                 m.position.x = 4;
                 m.position.y = 0;
                 m.material =marmorMaterial;
@@ -415,21 +430,33 @@ const cannonDebugRenderer = new CannonDebugRenderer(scene, world);
 onRenderFcts.push(updateProjectileLabels);
 let accelerationTimeDelta = 0;
 
+window.testVar= {
+  a: [],
+  v: []
+};
+
 var lastTimeMsec: number;
+var startX = 0;
+var startY = 0;
 requestAnimationFrame(animate);
 function animate(nowMsec: number) {
-    if(projectile.position.x > 0.99 && projectile.position.x < 1.1){
-      console.log(projectile.velocityModule)
-
-    } else if (projectile.position.x > 2 && projectile.position.y < 3 && projectile.position.y > 2.9) {
-      console.log(projectile.velocityModule)
+    if(projectile.position.x > 0.685 && projectile.position.x < 0.715){
+      console.log('vo: ' + projectile.velocityModule)
+      window.testVar.a.push(projectile.velocityModule);
+      startX = projectile.position.x;
+      startY = projectile.position.y;
+    } else if (projectile.position.x > 2 && projectile.position.y > startY - 0.015 && projectile.position.y < startY + 0.015) {
+      console.log('A: ' + (projectile.position.x - startX))
+      window.testVar.v.push(projectile.position.x - startX);
     }
-    
+
     requestAnimationFrame(animate);
     controls.update()
 
     delta = Math.min(clock.getDelta(), 0.1)
-    world.step(delta)
+    if(enablePhysics) {
+      world.step(delta)
+    }
 
     if(wireframeEnabled) {
       cannonDebugRenderer.update()

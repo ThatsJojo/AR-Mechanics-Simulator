@@ -72,11 +72,11 @@ export class Projectile {
     }
 
     public sleep() {
-        this._cannonBody.sleepState = CANNON.Body.SLEEPING;
+        this._cannonBody.sleep();
     }
 
     public awake() {
-        this._cannonBody.sleepState = CANNON.Body.AWAKE;
+        this._cannonBody.wakeUp();
     }
 
     public isSleeping(): boolean {
