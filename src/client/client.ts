@@ -295,7 +295,7 @@ var ramp = new Ramp(
     [launchAngleUpdatedHandler]
   );
 
-ramp.setPosition(-2, 0, -1);
+ramp.setPosition(-2, 0, -0.5);
 scene.add(ramp.mesh);
 world.addBody(ramp.cannonBody)
 
@@ -418,6 +418,13 @@ let accelerationTimeDelta = 0;
 var lastTimeMsec: number;
 requestAnimationFrame(animate);
 function animate(nowMsec: number) {
+    if(projectile.position.x > 0.99 && projectile.position.x < 1.1){
+      console.log(projectile.velocityModule)
+
+    } else if (projectile.position.x > 2 && projectile.position.y < 3 && projectile.position.y > 2.9) {
+      console.log(projectile.velocityModule)
+    }
+    
     requestAnimationFrame(animate);
     controls.update()
 
@@ -485,7 +492,7 @@ const accelerationZ = document.getElementById('acceleration-z') as HTMLElement;
 function updateProjectileLabels() {
   let velocity = projectile.velocity;
   let acceleration = projectile.acceleration;
-  velocityV0.innerHTML = Math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2).toFixed(2);
+  velocityV0.innerHTML = projectile.velocityModule.toFixed(2);
   velocityX.innerHTML = velocity.x.toFixed(2);
   velocityY.innerHTML = velocity.y.toFixed(2);
   velocityZ.innerHTML = velocity.z.toFixed(2);

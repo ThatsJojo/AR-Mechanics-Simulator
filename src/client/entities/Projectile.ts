@@ -140,6 +140,10 @@ export class Projectile {
         return this._cannonBody.velocity;
     }
 
+    get velocityModule(): number {
+        return  Math.sqrt(this.velocity.x**2 + this.velocity.y**2 + this.velocity.z**2);
+    }
+
     get geometry(): THREE.BufferGeometry {
         return this._geometry;
     }

@@ -55,7 +55,7 @@ export class Ramp extends EventEmitter {
             this._extrudeSettings = extrudeSettings;
         } else {
             this._extrudeSettings = { 
-                depth: 2, 
+                depth: 1, 
                 bevelEnabled: false, 
                 steps: 2, 
             };
