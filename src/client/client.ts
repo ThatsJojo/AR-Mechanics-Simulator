@@ -242,10 +242,20 @@ var projectile = new Projectile(
     true
   );
 
-projectile.setPosition(-4.99, 9, 0.5);
+projectile.setPosition(-4.99, 9, 0);
 
 scene.add(projectile.mesh)
 world.addBody(projectile.cannonBody)
+
+////////////////////////////////////////////////////////////
+// Creating handler for Ramp Launch Angle update
+////////////////////////////////////////////////////////////
+
+const angleDIV = document.getElementById('launchAngle') as HTMLElement;
+
+function launchAngleUpdatedHandler (e: any ) {
+  angleDIV.innerHTML = e.newAngle.toFixed(2) + 'º';
+}
 
 ////////////////////////////////////////////////////////////
 // Creating the Ramp
@@ -256,7 +266,7 @@ var rampV2 = new THREE.Vector2(-3, 0);
 var rampV3 = new THREE.Vector2(3, 0);
 var rampV4 = new THREE.Vector2(3, 1.5);
 var startControlPoint = new THREE.Vector2(-1, 0);
-var endControlPoint = new THREE.Vector2(2, 0);
+var endControlPoint = new THREE.Vector2(1.5475, 0);
 
 var ramp = new Ramp(
     0, 
@@ -267,13 +277,13 @@ var ramp = new Ramp(
     startControlPoint, 
     endControlPoint, 
     woodMaterial, 
-    defaultMaterial
+    defaultMaterial,
+    [launchAngleUpdatedHandler]
   );
 
 ramp.setPosition(-2, 0, -1);
 scene.add(ramp.mesh);
 world.addBody(ramp.cannonBody)
-
 
 ////////////////////////////////////////////////////////////
 // Creating the target
@@ -299,7 +309,6 @@ loader.load(
                 m.scale.z = 0.2;
                 m.position.x = 4;
                 m.position.y = 0;
-                m.position.z = 0.5;
                 m.material =marmorMaterial;
                 rampContainerMesh = m;
                 rampContainerBody = new CANNON.Body({ mass: 0 });

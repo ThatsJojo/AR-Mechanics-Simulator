@@ -11,10 +11,43 @@
             overflow: hidden;
             margin: 0px;
         }
+
+        .launchAngleContainer {
+            position: absolute;
+            top: 90px;
+            left: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 4px 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            padding: 5px 8px;
+        }
+
+        #launchAngle {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #ff6600;
+            color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+
     </style>
 </head>
 
 <body>
     <script type="module" src="bundle.js"></script>
+    <div class="launchAngleContainer">
+        <span>Ângulo de Lançamento: </span>
+        <span id="launchAngle"></span>
+    </div>
 </body>
 </html>

@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import CannonUtils from '../utils/cannonUtils'
+import { EventEmitter } from 'events'
 
-export class Ramp {
+export class Ramp extends EventEmitter {
     private mass: number;
 
     private vertice1: THREE.Vector2;
@@ -20,7 +21,8 @@ export class Ramp {
     private _cannonShape:  CANNON.Shape;
     private _cannonBody: CANNON.Body;
     private _cannonMaterial: CANNON.Material;
-
+    
+    private _launchAngle: number;
 
 
     constructor(
@@ -33,8 +35,10 @@ export class Ramp {
         endControl: THREE.Vector2,
         threeMaterial: THREE.Material,
         cannonMaterial: CANNON.Material,
+        launchAngleListeners: Array<(...args: any[]) => void>,
         extrudeSettings?: THREE.ExtrudeGeometryOptions | undefined,
     ) {
+        super();
         this.mass = mass;
         this.vertice1 = vertice1;
         this.vertice2 = vertice2;
@@ -45,6 +49,8 @@ export class Ramp {
         this._threeMaterial = threeMaterial;
         this._cannonMaterial = cannonMaterial;
 
+        this._launchAngle = 0;
+
         if(extrudeSettings) {
             this._extrudeSettings = extrudeSettings;
         } else {
@@ -53,6 +59,10 @@ export class Ramp {
                 bevelEnabled: false, 
                 steps: 2, 
             };
+        }
+
+        for(let launchAngleListener of launchAngleListeners) {
+            this.addListener('launchAngleUpdated', launchAngleListener);
         }
 
         this._shape = this.generateShape();
@@ -79,6 +89,8 @@ export class Ramp {
             );
 
         var bezierCurvePoints = bezierCurve.getPoints(50);
+        this.launchAngle = this.calculateAngle(bezierCurvePoints[49], this.vertice4, this.vertice3)
+
         rampShape.setFromPoints(bezierCurvePoints);
         rampShape.lineTo(this.vertice4.x, this.vertice4.y);
         rampShape.lineTo(this.vertice3.x, this.vertice3.y);
@@ -86,6 +98,17 @@ export class Ramp {
         rampShape.lineTo(this.vertice1.x, this.vertice1.y);
 
         return rampShape;
+    }
+
+    private calculateAngle(vertice1: THREE.Vector2, vertice2: THREE.Vector2, vertice3: THREE.Vector2): number {
+        const vetor1 = vertice1.clone().sub(vertice2);
+        const vetor2 = vertice3.clone().sub(vertice2);
+
+        const angulo1 = Math.atan2(vetor1.y, vetor1.x);
+        const angulo2 = Math.atan2(vetor2.y, vetor2.x);
+
+        let anguloEntreVertices = angulo2 - angulo1;
+        return THREE.MathUtils.radToDeg(anguloEntreVertices);
     }
 
     public copyPositionFrom(object: THREE.Object3D) {
@@ -153,5 +176,14 @@ export class Ramp {
 
     set cannonMaterial(cannonMaterial: CANNON.Material) {
         this._cannonMaterial = cannonMaterial;
+    }
+
+    get launchAngle(): number {
+        return this._launchAngle;
+    }
+
+    set launchAngle(angle: number) {
+        this._launchAngle = angle;
+        this.emit('launchAngleUpdated', {newAngle: angle, ramp: this});
     }
   }
