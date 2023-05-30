@@ -163,7 +163,7 @@ controls.enableDamping = true
 controls.target.y = 0.5
 
 const world = new CANNON.World()
-const wireframeEnabled = true;
+const wireframeEnabled = false;
 world.broadphase = new CANNON.SAPBroadphase(world)
 world.gravity.set(0, -9.82, 0)
 // world.broadphase = new CANNON.NaiveBroadphase()
@@ -418,7 +418,6 @@ let accelerationTimeDelta = 0;
 var lastTimeMsec: number;
 requestAnimationFrame(animate);
 function animate(nowMsec: number) {
-    // keep looping
     requestAnimationFrame(animate);
     controls.update()
 
@@ -475,6 +474,7 @@ function render() {
     renderer.render(scene, camera)
 }
 
+const velocityV0 = document.getElementById('velocity-v0') as HTMLElement;
 const velocityX = document.getElementById('velocity-x') as HTMLElement;
 const velocityY = document.getElementById('velocity-y') as HTMLElement;
 const velocityZ = document.getElementById('velocity-z') as HTMLElement;
@@ -485,7 +485,7 @@ const accelerationZ = document.getElementById('acceleration-z') as HTMLElement;
 function updateProjectileLabels() {
   let velocity = projectile.velocity;
   let acceleration = projectile.acceleration;
-
+  velocityV0.innerHTML = Math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2).toFixed(2);
   velocityX.innerHTML = velocity.x.toFixed(2);
   velocityY.innerHTML = velocity.y.toFixed(2);
   velocityZ.innerHTML = velocity.z.toFixed(2);

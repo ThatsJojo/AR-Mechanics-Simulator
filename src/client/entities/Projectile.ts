@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import CannonUtils from '../utils/cannonUtils'
 
 export class Projectile {
     private _acceleration: CANNON.Vec3;
@@ -184,5 +183,9 @@ export class Projectile {
 
     set startPosition(startPosition: THREE.Vector3) {
         this._startPosition = startPosition;
+    }
+
+    get position(): THREE.Vector3 {
+        return this._mesh.position;
     }
   }
