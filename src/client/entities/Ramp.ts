@@ -150,4 +150,8 @@ export class Ramp {
     get cannonMaterial(): CANNON.Material {
         return this._cannonMaterial;
     }
+
+    set cannonMaterial(cannonMaterial: CANNON.Material) {
+        this._cannonMaterial = cannonMaterial;
+    }
   }

@@ -9,6 +9,7 @@ import CannonUtils from './utils/cannonUtils'
 import CannonDebugRenderer from './utils/cannonDebugRenderer'
 import { THREEx, ARjs } from "@ar-js-org/ar.js-threejs"
 import { Ramp } from './entities/Ramp'
+import { Projectile } from './entities/Projectile'
 
 THREEx.ArToolkitContext.baseURL = "./";
 
@@ -226,23 +227,28 @@ const marmorMaterial =  new THREE.MeshStandardMaterial({
   envMapIntensity: 0.5
 })
 
-const sphereGeometry = new THREE.SphereGeometry(0.5)
-const sphereMesh = new THREE.Mesh(sphereGeometry, tenisballMaterial)
-sphereMesh.position.x = -4.99
-sphereMesh.position.y = 9
-sphereMesh.position.z = 0.5
-sphereMesh.castShadow = true
-scene.add(sphereMesh)
-const sphereShape = new CANNON.Sphere(0.5)
-const sphereCannonBody = new CANNON.Body({ mass: 60, material: defaultMaterial, linearDamping: 0.1, angularDamping: 0.101 })
-sphereCannonBody.addShape(sphereShape)
-sphereCannonBody.position.x = sphereMesh.position.x
-sphereCannonBody.position.y = sphereMesh.position.y
-sphereCannonBody.position.z = sphereMesh.position.z
-world.addBody(sphereCannonBody)
 
 ////////////////////////////////////////////////////////////
-// Creating the ramp
+// Creating the Projectile
+////////////////////////////////////////////////////////////
+
+var projectile = new Projectile(
+    60,
+    0.5,
+    tenisballMaterial,
+    defaultMaterial,
+    0.1,
+    0.101,
+    true
+  );
+
+projectile.setPosition(-4.99, 9, 0.5);
+
+scene.add(projectile.mesh)
+world.addBody(projectile.cannonBody)
+
+////////////////////////////////////////////////////////////
+// Creating the Ramp
 ////////////////////////////////////////////////////////////
 
 var rampV1 = new THREE.Vector2(-3, 6);
@@ -399,16 +405,16 @@ function animate(nowMsec: number) {
       cannonDebugRenderer.update()
     }
 
-        sphereMesh.position.set(
-        sphereCannonBody.position.x,
-        sphereCannonBody.position.y,
-        sphereCannonBody.position.z
+        projectile.mesh.position.set(
+        projectile.cannonBody.position.x,
+        projectile.cannonBody.position.y,
+        projectile.cannonBody.position.z
     )
-    sphereMesh.quaternion.set(
-        sphereCannonBody.quaternion.x,
-        sphereCannonBody.quaternion.y,
-        sphereCannonBody.quaternion.z,
-        sphereCannonBody.quaternion.w
+    projectile.mesh.quaternion.set(
+        projectile.cannonBody.quaternion.x,
+        projectile.cannonBody.quaternion.y,
+        projectile.cannonBody.quaternion.z,
+        projectile.cannonBody.quaternion.w
     )
     
     if (rampContainerLoaded) {
@@ -441,8 +447,8 @@ function animate(nowMsec: number) {
 var exibindoMensagem = false;
 function render() {
 
-    const intersects = raycaster.intersectObjects( [sphereMesh] );
-    if(intersects.length && !exibindoMensagem && !Math.round(sphereCannonBody.velocity.y * 10000)) {
+    const intersects = raycaster.intersectObjects( [projectile.mesh] );
+    if(intersects.length && !exibindoMensagem && !Math.round(projectile.cannonBody.velocity.y * 10000)) {
       exibindoMensagem = true;
       alert('Conseguiu!!!')
     } 
