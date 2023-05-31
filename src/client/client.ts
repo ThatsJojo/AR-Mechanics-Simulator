@@ -294,8 +294,8 @@ var rampV1 = new THREE.Vector2(-3, 6);
 var rampV2 = new THREE.Vector2(-3, 0);
 var rampV3 = new THREE.Vector2(3, 0);
 var rampV4 = new THREE.Vector2(3, 1.5);
-var startControlPoint = new THREE.Vector2(-1, 0);
-var endControlPoint = new THREE.Vector2(1.5475, 0);
+var startControlPoint =Ramp.startControlVerticeByAngle['45'];
+var endControlPoint = Ramp.endControlVerticeByAngle['45'];
 
 var ramp = new Ramp(
     0, 
@@ -441,13 +441,13 @@ var startY = 0;
 requestAnimationFrame(animate);
 function animate(nowMsec: number) {
     if(projectile.position.x > 0.685 && projectile.position.x < 0.715){
-      console.log('vo: ' + projectile.velocityModule)
-      window.testVar.a.push(projectile.velocityModule);
+      console.log(('vo: ' + projectile.velocityModule).replace('.', ','))
+      window.testVar.v.push(projectile.velocityModule);
       startX = projectile.position.x;
       startY = projectile.position.y;
     } else if (projectile.position.x > 2 && projectile.position.y > startY - 0.015 && projectile.position.y < startY + 0.015) {
-      console.log('A: ' + (projectile.position.x - startX))
-      window.testVar.v.push(projectile.position.x - startX);
+      console.log(('A: ' + (projectile.position.x - startX)).replace('.', ','))
+      window.testVar.a.push(projectile.position.x - startX);
     }
 
     requestAnimationFrame(animate);

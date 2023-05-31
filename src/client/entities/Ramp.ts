@@ -4,6 +4,18 @@ import CannonUtils from '../utils/cannonUtils'
 import { EventEmitter } from 'events'
 
 export class Ramp extends EventEmitter {
+    public static startControlVerticeByAngle = {
+        '30': new THREE.Vector2(-1, 0),
+        '60': new THREE.Vector2(-1, -1),
+        '45': new THREE.Vector2(-0.76, 0),
+    };
+
+    public static endControlVerticeByAngle = {
+        '30': new THREE.Vector2(2.199, 0),
+        '60': new THREE.Vector2(2, 0.9254),
+        '45': new THREE.Vector2(1.5475, 0),
+    };
+
     private mass: number;
 
     private vertice1: THREE.Vector2;
