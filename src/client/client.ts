@@ -10,7 +10,7 @@ import { Ramp } from './entities/Ramp'
 import { Projectile } from './entities/Projectile'
 
 THREEx.ArToolkitContext.baseURL = "./";
-
+var controls: OrbitControls | null; 
 // array of functions for the rendering loop
 var onRenderFcts: any[] = [];
 var arToolkitContext: any, arMarkerControls;
@@ -23,6 +23,7 @@ var arToolkitSource = new THREEx.ArToolkitSource({
 })
 
 arToolkitSource.init(function onReady() {
+  controls = null;
     
   arToolkitSource.domElement.addEventListener('canplay', () => {
       console.log(
@@ -38,7 +39,12 @@ arToolkitSource.init(function onReady() {
   setTimeout(() => {
     onWindowResize()
   }, 2000);
-}, function onError() { })
+}, async function onError() { 
+  setOrbitControls();
+})
+
+var targetMarkerRoot = new THREE.Object3D;
+var mainMarkerRoot = new THREE.Object3D;
 
 function initARContext() { // create atToolkitContext
   arToolkitContext = new THREEx.ArToolkitContext({
@@ -58,20 +64,28 @@ function initARContext() { // create atToolkitContext
   })
 
   // MARKER
-  arMarkerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+  mainMarkerRoot = new THREE.Group();
+  scene.add(mainMarkerRoot);
+  let markerControls = new THREEx.ArMarkerControls(arToolkitContext, mainMarkerRoot, {
+    type : 'pattern', patternUrl : "data/hiro.patt",
+  });
+
+  mainMarkerRoot.add(projectile.mesh);
+  mainMarkerRoot.add(ramp.mesh);
+
+  scene.add(mainMarkerRoot);
+
+
+  // MARKER
+  targetMarkerRoot = new THREE.Group();
+  arMarkerControls = new THREEx.ArMarkerControls(arToolkitContext, targetMarkerRoot, {
       type: 'pattern',
-      patternUrl: THREEx.ArToolkitContext.baseURL + './data/hiro.patt',
-      // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-      // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-      changeMatrixMode: 'cameraTransformMatrix',
+      patternUrl: THREEx.ArToolkitContext.baseURL + './data/letterF.patt',
   })
 
-  window.testVar = arMarkerControls;
+  targetMarkerRoot.add(rampContainerScene)
+  scene.add(targetMarkerRoot);
 
-  scene.visible = false
-
-  console.log('ArMarkerControls', arMarkerControls);
-  window.arMarkerControls = arMarkerControls;
 }
 
 function getSourceOrientation(): string {
@@ -96,7 +110,6 @@ function getSourceOrientation(): string {
 
 window.addEventListener("markerFound", function (e) {
   planeMesh.visible = false;
-  console.log("marker found!", e);
 })
 
 onRenderFcts.push(function () {
@@ -119,9 +132,6 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 )
-camera.position.set(0, 10, 9);
-var target = new THREE.Vector3(0, 10, 0);
-camera.lookAt(target);
 
 const light1 = new THREE.AmbientLight()
 light1.position.set(2.5, 5, 5)
@@ -158,12 +168,18 @@ document.body.appendChild(renderer.domElement);
 
 document.body.appendChild(renderer.domElement)
 
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-controls.target.y = 0.5
+async function setOrbitControls() {
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.target.y = 0.5;
+
+  camera.position.set(0, 10, 9);
+  var target = new THREE.Vector3(0, 10, 0);
+  camera.lookAt(target);
+}
 
 const world = new CANNON.World()
-const wireframeEnabled = false;
+const wireframeEnabled = true;
 world.broadphase = new CANNON.SAPBroadphase(world)
 world.gravity.set(0, -9.82, 0)
 // world.broadphase = new CANNON.NaiveBroadphase()
@@ -321,12 +337,13 @@ world.addBody(ramp.cannonBody)
 let rampContainerMesh: THREE.Object3D
 let rampContainerBody: CANNON.Body
 let rampContainerLoaded = false
+let rampContainerScene: THREE.Object3D
 
 const raycaster = new THREE.Raycaster()
 
 const loader = new GLTFLoader()
 loader.load(
-    'models/votive-holder.glb',
+    'models/target.glb',
     function (gltf) {
         gltf.scene.traverse(function (child) {
             if ((child as THREE.Mesh).isMesh) {
@@ -336,7 +353,7 @@ loader.load(
                 m.scale.x = 0.3;
                 m.scale.y = 0.18;
                 m.scale.z = 0.3;
-                m.position.x = 4;
+                m.position.x = controls? 4 : 0;
                 m.position.y = 0;
                 m.material =marmorMaterial;
                 rampContainerMesh = m;
@@ -372,6 +389,7 @@ loader.load(
                 l.shadow.mapSize.height = 2048
             }
         })
+        rampContainerScene = gltf.scene
         scene.add(gltf.scene)
     },
     (xhr) => {
@@ -402,6 +420,11 @@ function onWindowResize() {
     if (window.arToolkitContext.arController !== null) {
         arToolkitSource.copyElementSizeTo(window.arToolkitContext.arController.canvas)
     }
+
+    if(controls == null) {
+      return;
+    }
+
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -442,16 +465,16 @@ requestAnimationFrame(animate);
 function animate(nowMsec: number) {
     if(projectile.position.x > 0.685 && projectile.position.x < 0.715){
       console.log(('vo: ' + projectile.velocityModule).replace('.', ','))
-      window.testVar.v.push(projectile.velocityModule);
+      window.testVar.v?.push(projectile.velocityModule);
       startX = projectile.position.x;
       startY = projectile.position.y;
     } else if (projectile.position.x > 2 && projectile.position.y > startY - 0.015 && projectile.position.y < startY + 0.015) {
       console.log(('A: ' + (projectile.position.x - startX)).replace('.', ','))
-      window.testVar.a.push(projectile.position.x - startX);
+      window.testVar.a?.push(projectile.position.x - startX);
     }
 
     requestAnimationFrame(animate);
-    controls.update()
+    controls?.update()
 
     delta = Math.min(clock.getDelta(), 0.1)
     if(enablePhysics) {
@@ -464,17 +487,18 @@ function animate(nowMsec: number) {
 
     projectile.updateMeshFromBody();
     
-    if (rampContainerLoaded) {
-      rampContainerMesh.position.set(
-          rampContainerBody.position.x,
-          rampContainerBody.position.y,
-          rampContainerBody.position.z
+    if (rampContainerLoaded && !controls) {
+      rampContainerBody.position.set(
+        targetMarkerRoot.position.x - mainMarkerRoot.position.x,
+        targetMarkerRoot.position.y - mainMarkerRoot.position.y,
+        targetMarkerRoot.position.z - mainMarkerRoot.position.z
       )
-      rampContainerMesh.quaternion.set(
-          rampContainerBody.quaternion.x,
-          rampContainerBody.quaternion.y,
-          rampContainerBody.quaternion.z,
-          rampContainerBody.quaternion.w
+
+      rampContainerBody.quaternion.set(
+        ramp.mesh.quaternion.x + targetMarkerRoot.quaternion.x - mainMarkerRoot.quaternion.x,
+        ramp.mesh.quaternion.y + targetMarkerRoot.quaternion.y - mainMarkerRoot.quaternion.y,
+        ramp.mesh.quaternion.z + targetMarkerRoot.quaternion.z - mainMarkerRoot.quaternion.z,
+        ramp.mesh.quaternion.w + targetMarkerRoot.quaternion.w - mainMarkerRoot.quaternion.w
       )
     }
     
