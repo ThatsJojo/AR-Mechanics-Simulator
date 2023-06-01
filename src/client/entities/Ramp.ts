@@ -69,7 +69,7 @@ export class Ramp extends EventEmitter {
             this._extrudeSettings = { 
                 depth: 1, 
                 bevelEnabled: false, 
-                steps: 2, 
+                steps: 1, 
             };
         }
 
