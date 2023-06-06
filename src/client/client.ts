@@ -22,6 +22,8 @@ var arToolkitSource = new THREEx.ArToolkitSource({
   sourceHeight: window.innerWidth > window.innerHeight ? 480 : 640,
 })
 
+var arLoaded = false;
+
 arToolkitSource.init(function onReady() {
   controls = null;
     
@@ -61,13 +63,19 @@ function initARContext() { // create atToolkitContext
 
       console.log('arToolkitContext', arToolkitContext);
       window.arToolkitContext = arToolkitContext;
+      arLoaded = true;
+      if(rampContainerLoaded) {
+        rampContainerMesh.position.x = 0;
+        rampContainerBody.position.x = 0;
+      }
+
   })
 
   // MARKER
   mainMarkerRoot = new THREE.Group();
   scene.add(mainMarkerRoot);
   let markerControls = new THREEx.ArMarkerControls(arToolkitContext, mainMarkerRoot, {
-    type : 'pattern', patternUrl : "data/hiro.patt",
+    type : 'pattern', patternUrl : "data/hiro.patt", 
   });
 
   mainMarkerRoot.add(projectile.mesh);
@@ -353,7 +361,7 @@ loader.load(
                 m.scale.x = 0.3;
                 m.scale.y = 0.18;
                 m.scale.z = 0.3;
-                m.position.x = controls? 4 : 0;
+                m.position.x = arLoaded ? 0 : 4;
                 m.position.y = 0;
                 m.material =marmorMaterial;
                 rampContainerMesh = m;
@@ -379,7 +387,7 @@ loader.load(
                 const line = new THREE.Line(lineGeometry, lineMaterial);
 
                 // Adicionando a linha à cena
-                scene.add(line);
+                gltf.scene.add(line);
             }
             if ((child as THREE.Light).isLight) {
                 const l = child as THREE.Light
@@ -487,18 +495,32 @@ function animate(nowMsec: number) {
 
     projectile.updateMeshFromBody();
     
-    if (rampContainerLoaded && !controls) {
+    if (rampContainerLoaded && arLoaded) {
+      let vp = new THREE.Vector3
+      rampContainerMesh.getWorldPosition(vp)
+      
+      let vp2 = new THREE.Vector3
+      ramp.mesh.getWorldPosition(vp2)
+
+
+      rampContainerMesh.quaternion.copy(camera.quaternion);
       rampContainerBody.position.set(
-        targetMarkerRoot.position.x - mainMarkerRoot.position.x,
-        targetMarkerRoot.position.y - mainMarkerRoot.position.y,
-        targetMarkerRoot.position.z - mainMarkerRoot.position.z
+        targetMarkerRoot.rotation.x*targetMarkerRoot.position.x - mainMarkerRoot.rotation.x*mainMarkerRoot.position.x,
+        targetMarkerRoot.rotation.y*targetMarkerRoot.position.y - mainMarkerRoot.rotation.y*mainMarkerRoot.position.y,
+        targetMarkerRoot.rotation.z*targetMarkerRoot.position.z - mainMarkerRoot.rotation.z*mainMarkerRoot.position.z
       )
 
+      // console.log(
+      //   targetMarkerRoot.quaternion.x*targetMarkerRoot.position.x - mainMarkerRoot.quaternion.x*mainMarkerRoot.position.x,
+      //   targetMarkerRoot.quaternion.y*targetMarkerRoot.position.y - mainMarkerRoot.quaternion.y*mainMarkerRoot.position.y,
+      //   targetMarkerRoot.quaternion.z*targetMarkerRoot.position.z - mainMarkerRoot.quaternion.z*mainMarkerRoot.position.z,
+      // )
+
       rampContainerBody.quaternion.set(
-        ramp.mesh.quaternion.x + targetMarkerRoot.quaternion.x - mainMarkerRoot.quaternion.x,
-        ramp.mesh.quaternion.y + targetMarkerRoot.quaternion.y - mainMarkerRoot.quaternion.y,
-        ramp.mesh.quaternion.z + targetMarkerRoot.quaternion.z - mainMarkerRoot.quaternion.z,
-        ramp.mesh.quaternion.w + targetMarkerRoot.quaternion.w - mainMarkerRoot.quaternion.w
+        targetMarkerRoot.quaternion.x - mainMarkerRoot.quaternion.x,
+        targetMarkerRoot.quaternion.y - mainMarkerRoot.quaternion.y,
+        targetMarkerRoot.quaternion.z - mainMarkerRoot.quaternion.z,
+        targetMarkerRoot.quaternion.w - mainMarkerRoot.quaternion.w
       )
     }
     
