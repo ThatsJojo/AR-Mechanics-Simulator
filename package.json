@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack serve --config ./src/client/webpack.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "serve -s dist/client"
+    "start": "serve -s dist/client",
+    "build": "webpack build --config ./src/client/webpack.prod.js"
   },
   "author": "",
   "license": "ISC",
