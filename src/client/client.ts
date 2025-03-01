@@ -453,7 +453,7 @@ function onWindowResize() {
 }
 
 const gui = new GUI();
-const physicsFolder = gui.addFolder("Physics");
+const physicsFolder = gui.addFolder("Vetor Gravitacional");
 physicsFolder.add(world.gravity, "x", -50.0, 50.0, 0.1);
 physicsFolder.add(world.gravity, "y", -50.0, 50.0, 0.1);
 physicsFolder.add(world.gravity, "z", -50.0, 50.0, 0.1);
