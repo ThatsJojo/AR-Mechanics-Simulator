@@ -1,6 +1,6 @@
 # Simulação Oblíqua de Lançamento de Projéteis
 
-Este repositório contém o sistema de Simulação Oblíqua de Lançamento de Projéteis, uma ferramenta educacional desenvolvida para visualizar utilizando Realidade Aumentada e analisar o comportamento físico de projéteis lançados em diferentes condições.
+Este repositório contém o sistema de Simulação Oblíqua de Lançamento de Projéteis, uma ferramenta educacional para o ensino de Física Newtoniana desenvolvida para visualizar e analisar o comportamento físico de projéteis lançados em diferentes condições.
 
 ## Acesso ao Sistema
 
@@ -9,9 +9,9 @@ O sistema de simulação pode ser acessado diretamente através deste [endereço
 ## Funcionalidades
 
 - Simulação visual do lançamento oblíquo de projéteis
-- Ajuste de parâmetros como ângulo de lançamento, velocidade inicial e altura
+- Ajuste de parâmetros como ângulo de lançamento e efeito da gravidade
 - Cálculo automático de trajetória, alcance, altura máxima e tempo de voo
-- Visualização gráfica da trajetória do projétil
+- Visualização utilizando Realidade Aumentada da trajetória do projétil
 
 ## Como Utilizar
 
