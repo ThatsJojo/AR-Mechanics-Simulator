@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Mechanics Simulator</title>
+
+    <style>
+        body{
+            overflow: hidden;
+            margin: 0px;
+        }
+        
+        .htmlContent {
+            position: absolute;
+            z-index: 999999;
+            width:  100%;
+        }
+
+        .launchAngleContainer {
+            position: absolute;
+            top: 30px;
+            left: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 4px 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            padding: 5px 8px;
+        }
+
+        #launchAngle {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #ff6600;
+            color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+
+        #launchButton {
+            left: 30%;
+            transform: translate(-50%);
+        }
+
+        #pauseButton {
+            left: 60%;
+            transform: translate(-50%);
+        }
+
+        #launchButton, #pauseButton {
+            position: absolute;
+            top: 30px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .list-container {
+            position: absolute;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            width: 150px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            top: 100px;
+            border: solid rgba(0, 0, 0, 0.171) 1px;
+        }
+
+        .list-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .list-container li {
+            margin-bottom: 10px;
+        }
+
+        .list-container span.label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+            white-space: nowrap;
+        }
+
+        .list-container span.value {
+            display: inline-block;
+            width: 60px;
+            text-align: right;
+        }
+
+    </style>
+</head>
+
+<body>
+    <script type="module" src="bundle.js"></script>
+    <div class="htmlContent">
+        <div class="launchAngleContainer">
+            <span>Ângulo de Lançamento: </span>
+            <span id="launchAngle"></span>
+        </div>
+        <button id="launchButton">Lançar o Projetil</button>
+        <button id="pauseButton">Continuar</button>
+
+        <div class="list-container">
+            <ul>
+                <li>
+                    <span class="label" style="font-weight: bold;">|Velocidade|:</span>
+                    <span class="value" id="velocity-v0">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Velocidade X:</span>
+                    <span class="value" id="velocity-x">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Velocidade Y:</span>
+                    <span class="value" id="velocity-y">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Velocidade Z:</span>
+                    <span class="value" id="velocity-z">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Aceleração X:</span>
+                    <span class="value" id="acceleration-x">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Aceleração Y:</span>
+                    <span class="value" id="acceleration-y">0.00</span>
+                </li>
+                <li>
+                    <span class="label">Aceleração Z:</span>
+                    <span class="value" id="acceleration-z">0.00</span>
+                </li>
+            </ul>
+          </div>
+    </div>
+</body>
+</html>

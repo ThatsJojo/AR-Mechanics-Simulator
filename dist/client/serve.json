@@ -1,0 +1,10 @@
+{
+    "public": "./",
+    "rewrites": [
+        {
+            "source": "/simulation.html",
+            "destination": "/simulation.html"
+        }
+    ],
+    "cleanUrls": false
+}
